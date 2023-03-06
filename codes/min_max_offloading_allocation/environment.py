@@ -1,5 +1,7 @@
 import numpy as np
+from numpy.random import default_rng, SeedSequence
 import math
+from user_assignment import assign as assign_users
 
 class Instance:
     def __init__(self, id):
@@ -50,8 +52,6 @@ class Service:
         self._service_rate = 0
         self._arrival_rate = 0
         self._users = []
-
-        # self._group = set()     # 可能没用了
 
         self._price = 0
         self._num_server = 1
@@ -159,13 +159,14 @@ class Service:
         "budget_addition": budget_addition,
         "num_group_per_instance": num_group_per_instance,
         "num_user_per_group": num_user_per_group,
-        "min_arrival_rate": min_arrival_rate,
+        "min_arrival_rate": min_arrival_rate,       # 用户到达率的范围
         "max_arrival_rate": max_arrival_rate,
-        "min_max_service_rate_a": (min, max),
-        "min_max_service_rate_q": (min, max),
-        "min_max_service_rate_r": (min, max), 
-        "min_price": min_price,
-        "max_price": max_price,
+        "min_service_rate_a": ...,                  # A服务的服务率范围
+        "max_service_rate_a": ...,
+        "min_service_rate_q": ...,                  # q服务的服务率范围
+        "max_service_rate_q": ...,
+        "min_service_rate_r": ...,                  # R服务的服务率范围
+        "max_service_rate_r": ...,
         "trigger_probability": trigger_probability,
         "tx_ua_min": ..      # tx是传输时延
         "tx_ua_max": ..
@@ -175,10 +176,11 @@ class Service:
         "tx_qr_max": ..
         "tx_ru_mix": ..
         "tx_ru_max": ..
+        "assignment_algorithm":...     # 关联关系决策算法
     }
 """
 class Env:
-    def __init__(self, config, rng, seed_sequence):
+    def __init__(self, config: dict, rng: default_rng, seed_sequence: SeedSequence):
         self._config_list = config
 
         self._seed_sequence = seed_sequence
@@ -197,18 +199,14 @@ class Env:
         # 在 initialize_service() 中初始化
         self._num_service = 0
 
-        # 用户数，在 initialize_user() 中初始化
-        self._num_user = 0
-
         self._num_group_per_instance = config["num_group_per_instance"]  # 每个instance的组数
         self._num_user_per_group = config["num_user_per_group"]  # 每个组的用户数
 
+        # 系统中的用户数量
+        self._num_user = self._num_instance * self._num_group_per_instance * self._num_user_per_group
+
         self._max_arrival_rate = config["max_arrival_rate"]
         self._min_arrival_rate = config["min_arrival_rate"]
-
-        self._min_max_service_rate_a = config["min_max_service_rate_a"]
-        self._min_max_service_rate_q = config["min_max_service_rate_q"]
-        self._min_max_service_rate_r = config["min_max_service_rate_r"]
 
         self._max_price = config["max_price"]
         self._min_price = config["min_price"]
@@ -217,6 +215,11 @@ class Env:
 
         self._cost_budget = 0       # 初始化开销 + 预算
         self._budget_addition = config["budget_addition"]
+
+        # 各种类服务的服务率范围
+        self._service_rate_a_minmax = (config["min_service_rate_a"], config["max_service_rate_a"])
+        self._service_rate_q_minmax = (config["min_service_rate_q"], config["max_service_rate_q"])
+        self._service_rate_r_minmax = (config["min_service_rate_r"], config["max_service_rate_r"])
 
         # 传输时延取值范围
         self._tx_u_a_minmax = (config["tx_ua_min"], config["tx_ua_max"])
@@ -236,16 +239,44 @@ class Env:
         self._service_q = None  # 同步服务q，全局仅一个
         self._service_R = None  # R类服务，数组；每个元素也是数组，存储子服务。
 
+        # 用于保存用户-服务关联关系的矩阵
+        self.user_service_a = np.zeros((self._num_user, self._num_service_a))
+        self.user_service_r = np.zeros((self._num_user, self._num_service_r))
+
+        self._assignment_algorithm = config["assignment_algorithm"]
+
         self._initial_num_server = None     # env初始化之后，各个服务的服务器个数。在save_initial_num_server()中初始化
         self._interaction_delay_without_duplicate = None    # 保存去冗余后的交互时延对。在get_interaction_delay_without_duplicate()中初始化
 
+        self.initialize_transmission_delay()
         self.initialize_user()
+        self._services_config = self.initialize_services_config()
+        self.assign_users_to_services()
         self.initialize_service()
         self.get_interaction_delay_without_duplicate()
         self.initialize_num_server()
 
+        # print("---- assign_algorithm = {} --------".format(self._assignment_algorithm))
+        # print("initial_system_cost = {}".format(self.compute_cost()))
+        # print("service_num = {}".format(self._num_service))
+
+        # self.initialize_user()
+        # self.initialize_service()
+        # self.get_interaction_delay_without_duplicate()
+        # self.initialize_num_server()
+
     """
-        初始化用户
+        初始化各个节点/用户之间的传输时延
+    """
+    def initialize_transmission_delay(self):
+        # 传输时延(用户 --> 逻辑服务器a --> 同步服务器q --> 渲染服务器r --> 用户)，用矩阵保存
+        self._tx_u_a = self._rng.integers(self._tx_u_a_minmax[0], self._tx_u_a_minmax[1] + 1, (self._num_user, self._num_service_a))
+        self._tx_a_q = self._rng.integers(self._tx_a_q_minmax[0], self._tx_a_q_minmax[1] + 1, self._num_service_a)
+        self._tx_q_r = self._rng.integers(self._tx_q_r_minmax[0], self._tx_q_r_minmax[1] + 1, self._num_service_r)
+        self._tx_r_u = self._rng.integers(self._tx_r_u_minmax[0], self._tx_r_u_minmax[1] + 1, (self._num_service_r, self._num_user))
+
+    """
+        初始化用户实例（不包括与服务的关联关系）
     """
     def initialize_user(self):
         self._instances = []
@@ -256,27 +287,13 @@ class Env:
         group_id = 0
         user_id = 0
 
-        self._num_user = self._num_instance * self._num_group_per_instance * self._num_user_per_group
-        self.user_service_a = np.zeros((self._num_user, self._num_service_a))
-        self.user_service_r = np.zeros((self._num_user, self._num_service_r))
-
         for i in range(self._num_instance):
             instance = Instance(instance_id)
             for g in range(self._num_group_per_instance):
                 group = ShareViewGroup(group_id, instance_id)
                 for u in range(self._num_user_per_group):
                     user = User(user_id, instance_id, group_id)
-                    user._arrival_rate = int(self._rng.integers(self._min_arrival_rate, self._max_arrival_rate + 1))     # [min_arrival_rate, max_arrival_rate]
-
-                    user._service_a = int(self._rng.integers(0, self._num_service_a))
-                    user._service_r = int(self._rng.integers(0, self._num_service_r))
-
-                    """ 注意 """
-                    # 用户的子服务分配在 initialize_service() 部分
-
-                    # 二维矩阵保存关联关系
-                    self.user_service_a[user._id][user._service_a] = 1
-                    self.user_service_r[user._id][user._service_r] = 1
+                    user._arrival_rate = self._rng.integers(self._min_arrival_rate, self._max_arrival_rate + 1)     # [min_arrival_rate, max_arrival_rate]
 
                     self._users.append(user)
                     group._users.append(user_id)
@@ -287,38 +304,74 @@ class Env:
             self._instances.append(instance)
             instance_id += 1
 
-    def initialize_service(self):
-        # 传输时延(用户 --> 逻辑服务器a --> 同步服务器q --> 渲染服务器r --> 用户)，用矩阵保存
-        self._tx_u_a = self._rng.integers(self._tx_u_a_minmax[0], self._tx_u_a_minmax[1] + 1, (self._num_user, self._num_service_a))
-        self._tx_a_q = self._rng.integers(self._tx_a_q_minmax[0], self._tx_a_q_minmax[1] + 1, self._num_service_a)
-        self._tx_q_r = self._rng.integers(self._tx_q_r_minmax[0], self._tx_q_r_minmax[1] + 1, self._num_service_r)
-        self._tx_r_u = self._rng.integers(self._tx_r_u_minmax[0], self._tx_r_u_minmax[1] + 1, (self._num_service_r, self._num_user))
+    """
+        初始化各个服务的配置信息(服务率，价格)，但不真正生成服务的实例。
+        用于决定用户与服务的关联关系。
+        {
+            "service_A": [(50, 2), (40, 1.5), ...],
+            "service_Q": ...,
+            "service_R": [...]
+        }     
+    """
+    def initialize_services_config(self):
+        services_config = {
+            "service_A": [],
+            "service_Q": None,
+            "service_R": []
+        }
 
+        # ------------ A服务 ------------
+        for _ in range(self._num_service_a):
+            service_rate = self._rng.integers(self._service_rate_a_minmax[0], self._service_rate_a_minmax[1] + 1)
+            price = (service_rate / self._service_rate_a_minmax[0]) * 2 + 1
+            services_config["service_A"].append((service_rate, price))
+
+        # ----------- Q服务 ------------
+        service_rate_q = self._rng.integers(self._service_rate_q_minmax[0], self._service_rate_q_minmax[1] + 1)
+        price_q = (service_rate_q / self._service_rate_q_minmax[0]) * 2 + 1
+        services_config["service_Q"] = (service_rate_q, price_q)
+
+        # ---------- R服务 -------------
+        for _ in range(self._num_service_r):
+            service_rate = self._rng.integers(self._service_rate_r_minmax[0], self._service_rate_r_minmax[1] + 1)
+            price = (service_rate / self._service_rate_r_minmax[0]) * 2 + 1
+            services_config["service_R"].append((service_rate, price))
+
+        return services_config
+
+    def assign_users_to_services(self):
+        assign_users(self, self._assignment_algorithm)
+
+    """
+        初始化服务实例，不包括与用户的关联关系。
+        1. 由于关联关系还没决定，所以到达率也还无法计算；对于R服务，子服务也无法初始化
+        2. 服务的价格与服务率呈正相关
+    """
+    def initialize_service(self):
         self._service_A = []
         self._service_R = []        # [[sub-services], [sub-services],...]
 
         #  ------------------ service_A -----------------------
         for a in range(self._num_service_a):
             service = Service(a, 'a')
-            service._service_rate = int(self._rng.integers(self._min_max_service_rate_a[0], self._min_max_service_rate_a[1] + 1))
+            service._service_rate = self._services_config["service_A"][a][0]
+            service._price = self._services_config["service_A"][a][1]
+
+            # 计算到达率
             for u in range(self._num_user):
                 if self.user_service_a[u][a] == 1:
                     service._arrival_rate += self._users[u]._arrival_rate
                     service._users.append(u)
-
-            service._price = int(self._rng.integers(self._min_price, self._max_price + 1))
-
             self._service_A.append(service)
 
         # --------------------- service_q --------------------
         # 同步服务器q，仅此一个
         self._service_q = Service(0, 'q')
-        self._service_q._service_rate = int(self._rng.integers(self._min_max_service_rate_q[0], self._min_max_service_rate_q[1] + 1))
+        self._service_q._service_rate = self._services_config["service_Q"][0]
+        self._service_q._price = self._services_config["service_Q"][1]
         for u in range(self._num_user):
             self._service_q._arrival_rate += self._users[u]._arrival_rate
             self._service_q._users.append(u)
-
-        self._service_q._price = int(self._rng.integers(self._min_price, self._max_price + 1))
 
         # --------------------- service_R ----------------------
         for r in range(self._num_service_r):
@@ -334,8 +387,8 @@ class Env:
                         share_group[self._users[u]._group_id].append(u)
 
             # 同一个站点的每个子服务的服务器服务率、价格是一样的
-            price = int(self._rng.integers(self._min_price, self._max_price + 1))
-            service_rate = int(self._rng.integers(self._min_max_service_rate_r[0], self._min_max_service_rate_r[1] + 1))
+            service_rate = self._services_config["service_R"][r][0]
+            price = self._services_config["service_R"][r][1]
 
             # ----- 为每一个用户组新建一个子服务 ----------
             sub_service_id = 0
@@ -347,7 +400,7 @@ class Env:
                 sub_service._price = price
 
                 # 子服务的到达率是 λ * p
-                sub_service._arrival_rate = int(self._service_q._arrival_rate * self._trigger_probability)
+                sub_service._arrival_rate = self._service_q._arrival_rate * self._trigger_probability
 
                 for user_id in users:
                     self._users[user_id]._sub_service_r = sub_service_id
@@ -669,80 +722,3 @@ class Env:
                               service._price,
                               service._num_server,
                               service._queuing_delay))
-
-    """
-        返回初始化后，environment的各种信息。
-        1. 随机种子 seed
-        2. User: {id, group_id, 到达率, 关联关系：(a, r, sub_r)}
-        3. Service: {(id, sub_id), type, 服务率, 到达率, 价格, 初始化后的服务器个数, 初始化后的排队时延}
-        4. Env: {
-            num_service_a,
-            num_service_r,
-            num_group,
-            num_user_per_group,
-            min_max_arrival_rate,       # tuple
-            min_max_service_rate_a,     # tuple
-            min_max_service_rate_q,     # tuple
-            min_max_service_rate_r,     # tuple
-            min_max_price,              # tuple
-            trigger_probability,
-            tx_u_a_min_max,             # tuple
-            tx_a_q_min_max,             # tuple
-            tx_q_r_min_max,             # tuple
-            tx_r_u_min_max,             # tuple
-          }
-        5. 传输时延矩阵 
-    """
-    def get_env_info(self):
-        info = dict()
-        info["seed"] = self._seed_sequence.entropy
-
-        # env
-        info["num_service_a"] = self._num_service_a
-        info["num_service_r"] = self._num_service_r
-        info["num_group"] = self._num_group_per_instance
-        info["num_user_per_group"] = self._num_user_per_group
-        info["min_max_arrival_rate"] = (self._min_arrival_rate, self._max_arrival_rate)
-        info["min_max_service_rate_a"] = self._min_max_service_rate_a
-        info["min_max_service_rate_q"] = self._min_max_service_rate_q
-        info["min_max_service_rate_r"] = self._min_max_service_rate_r
-        info["min_max_price"] = (self._min_price, self._max_price)
-        info["trigger_probability"] = self._trigger_probability
-        info["tx_u_a_min_max"] = self._tx_u_a_minmax
-        info["tx_a_q_min_max"] = self._tx_a_q_minmax
-        info["tx_q_r_min_max"] = self._tx_q_r_minmax
-        info["tx_r_u_min_max"] = self._tx_r_u_minmax
-
-        # users
-        users_info = []
-        for user in self._users:
-            users_info.append([user._id, user._group_id, user._arrival_rate, (user._service_a, user._service_r, user._sub_service_r)])
-        info["users_info"] = users_info
-
-        # services
-        services_info = []
-        for sa in self._service_A:
-            services_info.append([(sa._id, sa._sub_id, sa._type, sa._service_rate, sa._arrival_rate, sa._price, sa._num_server, sa._queuing_delay)])
-        sq = self._service_q
-        services_info.append([(sq._id, sq._sub_id, sq._type, sq._service_rate, sq._arrival_rate, sq._price, sq._num_server, sq._queuing_delay)])
-        for sub_service_r_list in self._service_R:
-            for sr in sub_service_r_list:
-                services_info.append([(sr._id, sr._sub_id, sr._type, sr._service_rate, sr._arrival_rate, sr._price, sr._num_server, sr._queuing_delay)])
-
-
-        info["services_info"] = services_info
-
-        # 传输时延
-        info["transmission_delay"] = {
-            "tx_u_a": self._tx_u_a.tolist(),
-            "tx_a_q": self._tx_a_q.tolist(),
-            "tx_q_r": self._tx_q_r.tolist(),
-            "tx_r_u": self._tx_r_u.tolist()
-        }
-
-        return info
-
-
-
-
-

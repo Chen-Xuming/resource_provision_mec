@@ -129,13 +129,7 @@ class min_max_greedy(Algorithm):
 class min_max_pulp(Algorithm):
     def __init__(self, env):
         Algorithm.__init__(self, env)
-
-        self._time_limit = 1800  # 默认求解时间是30min
-
         self.services_to_dict()
-
-    def set_time_limit(self, time_limit):
-        self._time_limit = time_limit
 
     # 将服务记录成字典形式
     # key = (type, id), value = service ---> 只是引用（浅拷贝）
@@ -159,7 +153,6 @@ class min_max_pulp(Algorithm):
             for num_server in range(max_num_server + 1):
                 delay_reduction.append(service.reduction_of_delay_when_add_some_server(num_server))
             self._delay_reductions_each_service[key] = delay_reduction
-
 
     def set_num_server(self):
         # global service
@@ -216,7 +209,7 @@ class min_max_pulp(Algorithm):
 
         # solver = pulp.PULP_CBC_CMD(msg=False, warmStart=False, timeLimit=1800)  # timeLimit=600 ===> 10min
         # solver = pulp.PULP_CBC_CMD(msg=False, warmStart=False, timeLimit=1800)  # 30min
-        solver = pulp.PULP_CBC_CMD(msg=False, warmStart=False, timeLimit=self._time_limit)
+        solver = pulp.PULP_CBC_CMD(msg=False, warmStart=False, timeLimit=3600)  # 1h
 
         # solver = pulp.PULP_CBC_CMD(msg=False, warmStart=False)
 
@@ -230,7 +223,7 @@ class min_max_pulp(Algorithm):
 
         cost_pulp = 0
         for key, service_ in self._services_dict.items():
-            max_num_server = int(self._env._budget_addition / service_._price)      # FIXME: 不一定是 int 类型
+            max_num_server = int(self._env._budget_addition / service_._price)
 
             num_server = 0
             for i in range(max_num_server + 1):
@@ -272,17 +265,8 @@ class min_max_pulp(Algorithm):
         #             num_server = int(x_.name.split("_")[-1])
         #             if num_server > 0:
         #                 print("{}: {}".format(key, num_server))
-
-        solution = []
-        for key, value in x.items():
-            for x_ in value:
-                if x_.value() == 1:
-                    num_server = int(x_.name.split("_")[-1])
-                    if num_server > 0:
-                        solution.append([key, num_server])
-        return solution
-
-
+        #                 if IF_SAVE_PULP:
+        #                     file.write("{}: {}\n".format(key, num_server))
 
 
 """
