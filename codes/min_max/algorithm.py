@@ -7,6 +7,7 @@ import numpy as np
 import sys
 from time import time
 import pulp
+
 from environment import *
 import simplejson
 
@@ -286,7 +287,7 @@ class min_max_pulp(Algorithm):
 
 
 """
-    Greedy算法
+    Equal_Weight算法
 """
 class min_max_equal_weight(Algorithm):
     def __init__(self, env):
@@ -908,3 +909,258 @@ class min_max_surrogate_relaxation(Algorithm):
                 break
 
         return service_over_budget, max_utility
+
+
+"""
+    GCN 有监督
+"""
+# sys.path.append(r"../gcn")
+# from ..gcn.model import *
+from model_classification import GCN4OPTIMAL as GCN4OPTIMAL_CLASSIFICATION
+from model_fc1 import GCN4OPTIMAL as GCN4OPTIMAL_FC1
+
+from torch_geometric.data import Data
+import torch
+class min_max_gcn_round(Algorithm):
+    def __init__(self, env):
+        Algorithm.__init__(self, env)
+
+        self.model = GCN4OPTIMAL_FC1(num_feature=5, embedding_size=128)       # FC1
+        self.model.load_state_dict(torch.load("../gcn/model_checkpoint/20230313_212812.pth"))
+
+        self.model.eval()
+
+        self.env_config = env.get_env_info()
+
+        self.graph = self.initial_data()
+
+
+    def initial_data(self):
+        budget = self._env._cost_budget - self._env.compute_cost()
+
+        node_features = []  # [num_node, 5]
+        services_info = self.env_config["services_info"]
+        num_service_a = self.env_config["num_service_a"]
+        num_service_r = self.env_config["num_service_r"]
+        for i, service in enumerate(services_info):
+            s = service[0]
+            s_info = [s[3], s[4], s[5], s[7], budget]
+            node_features.append(s_info)
+
+        """
+            带权有向邻接矩阵
+        """
+        transmission_delay = self.env_config["transmission_delay"]
+        edge_index = [[], []]     # [2, num_edge]
+        edge_attr = []      # 权重，num_edge 个传输时延 [num_edge, 1]
+        service_q_idx = num_service_a   # = 10
+        for i in range(num_service_a):
+            edge_index[0].append(i)
+            edge_index[1].append(service_q_idx)
+        for i in range(service_q_idx + 1, len(services_info)):
+            edge_index[0].append(service_q_idx)
+            edge_index[1].append(i)
+
+        max_u_to_a = [0 for _ in range(num_service_a)]
+        max_r_to_u = [0 for _ in range(num_service_r)]
+        users = self.env_config["users_info"]
+        for user in users:
+            user_id = user[0]
+            idx_service_a = user[3][0]
+            idx_service_r = user[3][1]
+            tx_ua = transmission_delay["tx_u_a"][user_id][idx_service_a]
+            tx_ru = transmission_delay["tx_r_u"][idx_service_r][user_id]
+            max_u_to_a[idx_service_a] = max(max_u_to_a[idx_service_a], tx_ua)
+            max_r_to_u[idx_service_r] = max(max_r_to_u[idx_service_r], tx_ru)
+
+        for i in range(num_service_a):
+            edge_attr.append(transmission_delay["tx_a_q"][i] + max_u_to_a[i])
+        for i in range(service_q_idx + 1, len(services_info)):
+            idx_service_r = services_info[i][0][0]
+            edge_attr.append(transmission_delay["tx_q_r"][idx_service_r] + max_r_to_u[idx_service_r])
+
+        graph = Data(x=torch.tensor(node_features, dtype=torch.float32),
+                     edge_index=torch.tensor(edge_index, dtype=torch.long),
+                     edge_attr=torch.Tensor(edge_attr))
+
+        return graph
+
+    def get_candidate_list(self, solution):
+        service_list = []
+
+        for sa in self._env._service_A:
+            service_list.append(sa)
+        service_list.append(self._env._service_q)
+        for sq in self._env._service_R:
+            for sub_sq in sq:
+                service_list.append(sub_sq)
+
+        candidates = []
+        for i, num_server in enumerate(solution):
+            if num_server != 0:
+                delay_reduction = service_list[i].reduction_of_delay_when_add_a_server()
+                candidates.append([service_list[i], num_server, delay_reduction])
+
+        return candidates
+
+    """
+        从solution中，每次选取减少时延最多的，随后对应的值减一。
+    """
+    def set_num_server(self):
+        self._start_time = time()
+        self.get_initial_max_interaction_delay()
+
+        output = self.model(self.graph).squeeze(1).detach()
+
+        # FC模型的解
+        solution = (output.round().int()).numpy().tolist()
+
+        candidates = self.get_candidate_list(solution)
+        while self._cost < self._env._cost_budget and len(candidates) > 0:
+            candidates.sort(key=lambda x: x[2], reverse=True)
+            select_flag = False
+            for candidate in candidates:
+                if candidate[1] == 0:
+                    continue
+                if candidate[0]._price + self._cost > self._env._cost_budget:
+                    continue
+                else:
+                    candidate[0].update_num_server(candidate[0]._num_server + 1)
+                    candidate[1] -= 1
+                    candidate[2] = candidate[0].reduction_of_delay_when_add_a_server()
+                    select_flag = True
+                    self._cost = self._env.compute_cost()
+
+            if select_flag is False:
+                break
+
+        self.get_min_max_result()
+        self.get_running_time()
+
+
+class min_max_gcn_softmax(Algorithm):
+    def __init__(self, env):
+        Algorithm.__init__(self, env)
+
+        self.model = GCN4OPTIMAL_CLASSIFICATION(num_feature=5, embedding_size=128, num_class=16)  # classification
+        self.model.load_state_dict(torch.load("../gcn/model_checkpoint/20230310_171120.pth"))
+
+        self.model.eval()
+
+        self.env_config = env.get_env_info()
+
+        self.graph = self.initial_data()
+
+
+    def initial_data(self):
+        budget = self._env._cost_budget - self._env.compute_cost()
+
+        node_features = []  # [num_node, 5]
+        services_info = self.env_config["services_info"]
+        num_service_a = self.env_config["num_service_a"]
+        num_service_r = self.env_config["num_service_r"]
+        for i, service in enumerate(services_info):
+            s = service[0]
+            s_info = [s[3], s[4], s[5], s[7], budget]
+            node_features.append(s_info)
+
+        """
+            带权有向邻接矩阵
+        """
+        transmission_delay = self.env_config["transmission_delay"]
+        edge_index = [[], []]     # [2, num_edge]
+        edge_attr = []      # 权重，num_edge 个传输时延 [num_edge, 1]
+        service_q_idx = num_service_a   # = 10
+        for i in range(num_service_a):
+            edge_index[0].append(i)
+            edge_index[1].append(service_q_idx)
+        for i in range(service_q_idx + 1, len(services_info)):
+            edge_index[0].append(service_q_idx)
+            edge_index[1].append(i)
+
+        max_u_to_a = [0 for _ in range(num_service_a)]
+        max_r_to_u = [0 for _ in range(num_service_r)]
+        users = self.env_config["users_info"]
+        for user in users:
+            user_id = user[0]
+            idx_service_a = user[3][0]
+            idx_service_r = user[3][1]
+            tx_ua = transmission_delay["tx_u_a"][user_id][idx_service_a]
+            tx_ru = transmission_delay["tx_r_u"][idx_service_r][user_id]
+            max_u_to_a[idx_service_a] = max(max_u_to_a[idx_service_a], tx_ua)
+            max_r_to_u[idx_service_r] = max(max_r_to_u[idx_service_r], tx_ru)
+
+        for i in range(num_service_a):
+            edge_attr.append(transmission_delay["tx_a_q"][i] + max_u_to_a[i])
+        for i in range(service_q_idx + 1, len(services_info)):
+            idx_service_r = services_info[i][0][0]
+            edge_attr.append(transmission_delay["tx_q_r"][idx_service_r] + max_r_to_u[idx_service_r])
+
+        graph = Data(x=torch.tensor(node_features, dtype=torch.float32),
+                     edge_index=torch.tensor(edge_index, dtype=torch.long),
+                     edge_attr=torch.Tensor(edge_attr))
+
+        return graph
+
+    def get_candidate_list(self, solution):
+        service_list = []
+
+        for sa in self._env._service_A:
+            service_list.append(sa)
+        service_list.append(self._env._service_q)
+        for sq in self._env._service_R:
+            for sub_sq in sq:
+                service_list.append(sub_sq)
+
+        candidates = []
+        for i, num_server in enumerate(solution):
+            if num_server != 0:
+                delay_reduction = service_list[i].reduction_of_delay_when_add_a_server()
+                candidates.append([service_list[i], num_server, delay_reduction])
+
+        return candidates
+
+    """
+        从solution中，每次选取减少时延最多的，随后对应的值减一。
+    """
+    def set_num_server(self):
+        self._start_time = time()
+        self.get_initial_max_interaction_delay()
+
+        output = self.model(self.graph).squeeze(1).detach()
+
+        # Classification模型的解
+        _, prediction = torch.max(output, 1)
+        solution = prediction.int().numpy().tolist()
+
+        # print("solution = {}".format(solution))
+
+        candidates = self.get_candidate_list(solution)
+        while self._cost < self._env._cost_budget and len(candidates) > 0:
+            candidates.sort(key=lambda x: x[2], reverse=True)
+            select_flag = False
+            for candidate in candidates:
+                if candidate[1] == 0:
+                    continue
+                if candidate[0]._price + self._cost > self._env._cost_budget:
+                    continue
+                else:
+                    candidate[0].update_num_server(candidate[0]._num_server + 1)
+                    candidate[1] -= 1
+                    candidate[2] = candidate[0].reduction_of_delay_when_add_a_server()
+                    select_flag = True
+                    self._cost = self._env.compute_cost()
+
+            if select_flag is False:
+                break
+
+        self.get_min_max_result()
+        self.get_running_time()
+
+
+
+
+
+
+
+

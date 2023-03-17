@@ -56,7 +56,31 @@ def read_data(json_file_list, keys, algorithms):
                 running_time[alg][i].append(data_budget[alg]["running_time"])
     return max_delay, running_time
 
-def analyse(max_delay, running_time, algorithms, keys):
+"""
+    读取 result/PULP_solutions 的结果
+"""
+def read_pulp_results(keys):
+    num_files_to_read = 30
+    max_delay = {"min_max_pulp": {}}
+    running_time = {"min_max_pulp": {}}
+    for i in keys:
+        max_delay["min_max_pulp"][i] = []
+        running_time["min_max_pulp"][i] = []
+
+    dir_path = "./result/PULP_solutions/"
+    for count, file_name in enumerate(os.listdir(dir_path)):
+        if count == num_files_to_read:
+            break
+        data = json.load(open(dir_path + file_name))
+        for i in keys:
+            data_budget = data[str(i)]
+            max_delay["min_max_pulp"][i].append(data_budget["max_delay"] * 1000)
+            running_time["min_max_pulp"][i].append(data_budget["running_time"])
+
+    return max_delay, running_time
+
+
+def analyse(max_delay, running_time, algorithms, keys, with_pulp=True):
     result_max_delay = [[] for i in algorithms]
     result_running_time = [[] for i in algorithms]
 
@@ -66,29 +90,32 @@ def analyse(max_delay, running_time, algorithms, keys):
             result_running_time[i].append(np.mean(running_time[alg][budget]))
 
     # 近似率: 求各个simulation下的的近似率，然后求平均
-    opt_alg = "min_max_pulp"
-    approximate_ratio = {}
-    for alg in algorithms:
-        if alg != opt_alg:
-            approximate_ratio[alg] = []
-    pulp_index = algorithms.index(opt_alg)
-    simulations = len(max_delay[opt_alg][keys[0]])
-    for i, alg in enumerate(algorithms):
-        if alg != opt_alg:
-            for key in keys:
-                ratios = []
-                for simulation in range(simulations):
-                    ratios.append(max_delay[alg][key][simulation] / max_delay[opt_alg][key][simulation])
-                approximate_ratio[alg].append(np.mean(ratios))
+    approximate_ratio = None
+    if with_pulp:
+        opt_alg = "min_max_pulp"
+        approximate_ratio = {}
+        for alg in algorithms:
+            if alg != opt_alg:
+                approximate_ratio[alg] = []
+        pulp_index = algorithms.index(opt_alg)
+        simulations = len(max_delay[opt_alg][keys[0]])
+        for i, alg in enumerate(algorithms):
+            if alg != opt_alg:
+                for key in keys:
+                    ratios = []
+                    for simulation in range(simulations):
+                        ratios.append(max_delay[alg][key][simulation] / max_delay[opt_alg][key][simulation])
+                    approximate_ratio[alg].append(np.mean(ratios))
 
-    for i, alg in enumerate(algorithms):
-        if alg != "min_max_pulp":
-            ratios = []
-            for j in range(len(keys)):
-                # ratios.append(running_time[1])
-                approximate_ratio[alg].append(result_max_delay[i][j] / result_max_delay[pulp_index][j])
+        for i, alg in enumerate(algorithms):
+            if alg != "min_max_pulp":
+                ratios = []
+                for j in range(len(keys)):
+                    # ratios.append(running_time[1])
+                    approximate_ratio[alg].append(result_max_delay[i][j] / result_max_delay[pulp_index][j])
 
     return result_max_delay, result_running_time, approximate_ratio
+
 
 def draw_delay(max_delay, algorithms, keys, save_dir):
     plt.figure()
@@ -231,89 +258,58 @@ def draw():
     draw_running_time(result_running_time, algorithms, keys, save_dir)
     draw_approximate_ratio(approximate_ratio, keys, save_dir)
 
-def draw_pulp_optimal():
+def draw_3_11():
     users = 100
 
-    dir_path = "result/2022-8-21_pulp_1h/{}u-10s".format(users)
-    keys = [i for i in range(10, 110, 10)]
-    algorithms = ['min_max_pulp']
+    dir_path = "result/2023-3-13_gcn/{}u-10s".format(users)
 
-    file_list = get_json_file_list(dir_path)
-    max_delay, running_time = read_data(file_list, keys, algorithms)
-
-    out_of_limited_time = []
-    for budget in keys:
-        count = 0
-        for run_time in running_time["min_max_pulp"][budget]:
-            if run_time > 3600 * 1000:
-                count += 1
-        out_of_limited_time.append(count)
-
-    plt.figure()
-    plt.title("{} users".format(users))
-    plt.xlabel("budget")
-    plt.ylabel("the number of overtime case")
-
-    plt.tight_layout()
-    plt.xticks(ticks=keys)
-    y = [i+1 for i in range(10)]
-    plt.yticks(ticks=y)
-
-    for i, num in enumerate(out_of_limited_time):
-        plt.bar(keys[i], num, color=color_list[1], width=2)
-
-    plt.grid(linestyle='--')
-
-    plt.show()
-
-"""
-    2023-2-6
-"""
-def draw2():
-    users = 200
-
-    dir_path = "result/2023-2-4-four_algs/{}u-10s".format(users)
-
-    step_map = {
+    initial_budgets = {
+        100: 50,
+        200: 50,
+        300: 50
+    }
+    budget_steps = {
         100: 20,
         200: 30,
         300: 40
     }
-    keys = [i for i in range(step_map[users], step_map[users] * 10 + step_map[users], step_map[users])]
+    keys = [i for i in range(initial_budgets[users], budget_steps[users] * 10 + initial_budgets[users], budget_steps[users])]
 
-    # algorithms = ['min_max_pulp', 'min_max_greedy', 'min_max_equal_weight']
-    # algorithms = ['min_max_pulp']
-    algorithms = ['min_max_pulp', 'min_max_greedy', 'min_max_equal_weight', 'min_max_surrogate_relaxation']
+    # algorithms = ['min_max_greedy', 'min_max_equal_weight', 'min_max_gcn_round', 'min_max_gcn_softmax']
+    algorithms = ['min_max_greedy', 'min_max_equal_weight', 'min_max_gcn_round']
+
 
     file_list = get_json_file_list(dir_path)
     max_delay, running_time = read_data(file_list, keys, algorithms)
-    # max_delay["min_max_surrogate_relaxation_condition1"] = max_delay.pop('min_max_surrogate_relaxation')
-    # running_time["min_max_surrogate_relaxation_condition1"] = running_time.pop('min_max_surrogate_relaxation')
-    # algorithms[2] = "min_max_surrogate_relaxation_condition1"
 
+    # ----------------------------------------------------------------------------
+
+    pulp_exist = True
+
+    if pulp_exist:
+        max_delay_pulp, running_time_pulp = read_pulp_results(keys)
+        max_delay.update(max_delay_pulp)
+        running_time.update(running_time_pulp)
+
+        algorithms += ['min_max_pulp']
 
     print(max_delay)
 
+    result_max_delay, result_running_time, approximate_ratio = analyse(max_delay, running_time, algorithms, keys, pulp_exist)
 
+    print(result_max_delay)
+    print(result_running_time)
+    print(approximate_ratio)
 
-    # print("running time: {}".format(running_time))
-
-    result_max_delay, result_running_time, approximate_ratio = analyse(max_delay, running_time, algorithms, keys)
-
-
-    # print(result_max_delay)
-    # print(result_runnint_time)
-    # print(approximate_ratio)
-
-    save_dir = "result/2023-2-4-four_algs/{}u-10s".format(users)
+    save_dir = "result/2023-3-13_gcn/{}u-10s".format(users)
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
 
     draw_delay(result_max_delay, algorithms, keys, save_dir)
     draw_running_time(result_running_time, algorithms, keys, save_dir)
-    draw_approximate_ratio(approximate_ratio, keys, save_dir)
-
+    if pulp_exist:
+        draw_approximate_ratio(approximate_ratio, keys, save_dir)
 
 if __name__ == "__main__":
-    draw2()
+    draw_3_11()
     # draw_pulp_optimal()
