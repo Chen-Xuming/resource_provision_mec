@@ -1,7 +1,8 @@
 class Service:
     def __init__(self, service_type, node_id=None, user_id=None):
+
         self.service_type = service_type
-        self.user_id = user_id      # 从属哪个用户；如果是同步服务B，则此属性无效
+        self.user_id = user_id      # 从属哪个用户，仅当服务R时有效
         self.arrival_rate = 0
 
         """
@@ -10,26 +11,34 @@ class Service:
         self.node_id = node_id      # 部署在哪个EdgeNode
         self.service_rate = 0       # 服务率
         self.queuing_delay = 0.
-        self.num_server = 0
+        self.num_server = 0         # 分配的服务器个数（包括num_extra_server）
+        self.num_extra_server = 0   # 超出节点容量部分的服务器个数
         self.price = 0.
+        self.extra_price = 0.
 
     def reset(self):
         self.node_id = None     # 部署在哪个EdgeNode
         self.service_rate = 0   # 服务率
         self.queuing_delay = 0.
         self.num_server = 0
+        self.num_extra_server = 0
         self.price = 0.
+        self.extra_price = 0.
 
     # 更新服务器的数量，以及排队时延
-    def update_num_server(self, n, update_queuing_delay=True):
+    def update_num_server(self, n, extra_n, update_queuing_delay=True):
+        # if self.service_type == 'A':
+        #     print("node_id: {}, num_server: {}".format(self.node_id, self.num_server))
+
         self.num_server = n
+        self.num_extra_server = extra_n if extra_n > 0 else 0
         if update_queuing_delay:
             self.queuing_delay = self.compute_queuing_delay(self.num_server)
 
     # 初始化服务器个数为刚好达到稳态条件的个数
-    def initialize_num_server(self):
-        min_num_server = self.get_num_server_for_stability(self.service_rate)
-        self.update_num_server(min_num_server)
+    # def initialize_num_server(self):
+    #     min_num_server = self.get_num_server_for_stability(self.service_rate)
+    #     self.update_num_server(min_num_server)
 
     def get_num_server_for_stability(self, service_rate):
         num_server = 1

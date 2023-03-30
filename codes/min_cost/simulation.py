@@ -2,7 +2,7 @@ import simplejson
 from numpy.random import default_rng, SeedSequence
 from env_environment import *
 
-from alg_random import RandomAssignmentAllocation
+from alg_sto import RandomAssignmentAllocation
 from alg_greedy import GreedyAssignmentAllocation
 from alg_nearest import NearestAssignmentAllocation
 

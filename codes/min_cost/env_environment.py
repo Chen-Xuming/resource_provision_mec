@@ -26,6 +26,8 @@ class Environment:
         self.minmax_price_B = parameters["minmax_price_B"]
         self.minmax_price_R = parameters["minmax_price_R"]
 
+        self.price_times_of_extra_server = parameters["price_times_of_extra_server"]    # 超出容量的服务器，价格是原价的若干倍
+
         self.minmax_edge_node_capacity = parameters["minmax_edge_node_capacity"]
 
         # 节点间的传输时延取值范围（包括 user <--> edge node）
@@ -89,16 +91,14 @@ class Environment:
             user = User(user_id=user_id)
             user.arrival_rate = self.rng.integers(self.minmax_arrival_rate[0], self.minmax_arrival_rate[1] + 1)
 
-            service_a = Service(service_type="A", user_id=user_id)
             service_r = Service(service_type="R", user_id=user_id)
-            user.service_A = service_a
             user.service_R = service_r
             user.service_B = self.service_b
 
             self.user_list.append(user)
 
     """
-        初始化各个服务的服务率
+        初始化各个服务的到达率（服务A除外）
     """
     def initialize_service_rate(self):
         for user in self.user_list:     # type: User
@@ -107,7 +107,6 @@ class Environment:
         self.service_b.arrival_rate = self.total_arrival_rate
 
         for user in self.user_list:     # type: User
-            user.service_A.arrival_rate = user.arrival_rate
             user.service_R.arrival_rate = int(self.total_arrival_rate * self._trigger_probability)
 
     """
@@ -123,6 +122,10 @@ class Environment:
             edge_node.price["B"] = self.rng.integers(self.minmax_price_B[0], self.minmax_price_B[1] + 1)
             edge_node.price["R"] = self.rng.integers(self.minmax_price_R[0], self.minmax_price_R[1] + 1)
 
+            edge_node.extra_price["A"] = edge_node.price["A"] * self.price_times_of_extra_server
+            edge_node.extra_price["B"] = edge_node.price["B"] * self.price_times_of_extra_server
+            edge_node.extra_price["R"] = edge_node.price["R"] * self.price_times_of_extra_server
+
             edge_node.service_rate["A"] = self.rng.integers(self.minmax_service_rate_A[0],
                                                             self.minmax_service_rate_A[1] + 1)
             edge_node.service_rate["B"] = self.rng.integers(self.minmax_service_rate_B[0],
@@ -137,13 +140,25 @@ class Environment:
         传输开销包含交互路径上的四段。
     """
     def compute_cost(self, assigned_user_list: list):
-        allocation_cost = self.service_b.num_server * self.service_b.price
+        out_capacity = self.service_b.num_extra_server
+        in_capacity = self.service_b.num_server - out_capacity
+        allocation_cost = in_capacity * self.service_b.price
+        allocation_cost += out_capacity * self.service_b.extra_price
+
         transmission_cost = 0
 
         # 服务器分配开销
         for user in assigned_user_list:     # type: User
-            allocation_cost += user.service_A.num_server * user.service_A.price
-            allocation_cost += user.service_R.num_server * user.service_R.price
+            out_capacity = user.service_A.num_extra_server
+            in_capacity = user.service_A.num_server - out_capacity
+            allocation_cost += in_capacity * user.service_A.price
+            allocation_cost += out_capacity * user.service_A.extra_price
+
+            out_capacity = user.service_R.num_extra_server
+            in_capacity = user.service_R.num_server - out_capacity
+            allocation_cost += in_capacity * user.service_R.price
+            allocation_cost += out_capacity * user.service_R.extra_price
+
 
 
         # 传输开销
@@ -233,6 +248,19 @@ class Environment:
             if delay > max_delay:
                 max_delay = delay
                 user_pair = (other_user, cur_user)
+
+        return user_pair[0], user_pair[1], max_delay
+
+    def compute_max_interactive_delay(self, assigned_user_list: list) -> (User, User, float):
+        max_delay = -1
+        user_pair = (-1, -1)
+
+        for user_from in assigned_user_list:    # type: User
+            for user_to in assigned_user_list:    # type: User
+                delay = self.compute_interactive_delay(user_from, user_to)
+                if delay > max_delay:
+                    max_delay = delay
+                    user_pair = (user_from, user_to)
 
         return user_pair[0], user_pair[1], max_delay
 

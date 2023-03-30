@@ -38,7 +38,6 @@ class BaseAlgorithm:
         0. 检查每个服务的排队时延是否跟num_ser对应的排队时延一致
         1. 检查是否所有用户都关联了EdgeNode，service的价格和服务率是否一致
         2. 检查是否所有时延满足约束
-        3. 检查各个EdgeNode是否满足容量约束
     """
     def check_result(self):
         error_range = 1e-10
@@ -79,11 +78,7 @@ class BaseAlgorithm:
 
         self.avg_delay = total_delay / (self.env.num_user**2)
 
-        for edge_node in self.env.edge_node_list:   # type: EdgeNode
-            num_server = 0
-            for service in edge_node.service_list.values():
-                num_server += service.num_server
-            assert num_server <= edge_node.capacity, "EdgeNode {} is out of capacity.".format(edge_node.node_id)
+
 
     """
         计算最终的开销

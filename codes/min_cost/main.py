@@ -1,6 +1,6 @@
 from codes.min_cost.parameters import environment_configuration
 from numpy.random import SeedSequence
-from codes.min_cost.alg_random import RandomAssignmentAllocation
+from codes.min_cost.alg_sto import RandomAssignmentAllocation
 from codes.min_cost.alg_nearest import NearestAssignmentAllocation
 from codes.min_cost.alg_greedy import GreedyAssignmentAllocation
 from codes.min_cost.env_environment import Environment
@@ -12,7 +12,7 @@ AssertionError: Interactive delay of users (44, 12) is out of limitation.
 
 
 for i in range(100):
-    # seed = SeedSequence(54171349637842144159007613790275699200)
+    # seed = SeedSequence(307738242421461792325195305605025826524)
     # print("entropy={}".format(seed.entropy))
 
     seed = SeedSequence()
@@ -21,13 +21,13 @@ for i in range(100):
     print("[Random]")
     env = Environment(environment_configuration, seed)
     random_alg = RandomAssignmentAllocation(env)
-    random_alg.run()
+    random_alg.run2()
 
     # seed = SeedSequence(123)
-    print("[Nearest]")
-    env = Environment(environment_configuration, seed)
-    nearest_alg = NearestAssignmentAllocation(env)
-    nearest_alg.run()
+    # print("[Nearest]")
+    # env = Environment(environment_configuration, seed)
+    # nearest_alg = NearestAssignmentAllocation(env)
+    # nearest_alg.run()
 
     # print("[Greedy]")
     # env = Environment(environment_configuration, seed)
