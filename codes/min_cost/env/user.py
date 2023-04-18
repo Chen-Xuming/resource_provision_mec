@@ -1,4 +1,4 @@
-from env_service import Service
+from codes.min_cost.env.service import Service
 
 class User:
     def __init__(self, user_id):
@@ -9,3 +9,8 @@ class User:
         self.service_A = None   # type: Service
         self.service_B = None   # type: Service
         self.service_R = None   # type: Service
+
+    def reset(self):
+        self.service_A = None
+
+        self.service_R.reset()

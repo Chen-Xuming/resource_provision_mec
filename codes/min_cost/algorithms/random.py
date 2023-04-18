@@ -1,4 +1,4 @@
-from alg_base import *
+from codes.min_cost.algorithms.base import *
 import random
 
 class RandomAssignmentAllocation(BaseAlgorithm):
@@ -12,7 +12,7 @@ class RandomAssignmentAllocation(BaseAlgorithm):
 
         self.debug_flag = False  # True = On, False = Off
 
-    def run2(self):
+    def run(self):
         self.start_time = time()
 
         # --------------- 为同步服务器B关联一个EdgeNode ---------------
@@ -154,13 +154,7 @@ class RandomAssignmentAllocation(BaseAlgorithm):
         分配服务器以满足时延约束
     """
     def allocate_for_delay_limitations(self, cur_user: User):
-        share_serviceA_users = []
-        for user in self.assigned_users:
-            if user.service_A.node_id == cur_user.service_A.node_id:
-                share_serviceA_users.append(user)
-
-        # user_from, user_to, max_delay = self.env.compute_max_interactive_delay(self.assigned_users)
-        user_from, user_to, max_delay = self.get_max_delay_about_by_user(cur_user, involved_users=share_serviceA_users)
+        user_from, user_to, max_delay = self.env.compute_max_interactive_delay(self.assigned_users)
         while max_delay > self.env.delay_limit:
 
             # 为当前服务链分配服务器，直到其降低到时延约束以下
@@ -171,25 +165,7 @@ class RandomAssignmentAllocation(BaseAlgorithm):
                 self.allocate(selected_service, 1)
                 cur_delay = self.env.compute_interactive_delay(user_from, user_to)
 
-            user_from, user_to, max_delay = self.get_max_delay_about_by_user(cur_user, involved_users=share_serviceA_users)
-
-    """
-        获取跟cur_user相关的最大时延
-        1. cur_user --> 其它已分配的用户
-        2. 其它已分配的用户 --> cur_user
-        3. 跟cur_user共享服务A的用户 --> cur_user
-    """
-    def get_max_delay_about_by_user(self, cur_user: User, involved_users: list):
-        user_from, user_to, max_delay = self.env.compute_max_interactive_delay_by_given_user(cur_user, self.assigned_users)
-
-        for user in involved_users:     # type: User
-            delay = self.env.compute_interactive_delay(user, cur_user)
-            if delay > max_delay:
-                user_from = user
-                user_to = cur_user
-                max_delay = delay
-
-        return user_from, user_to, max_delay
+            user_from, user_to, max_delay = self.env.compute_max_interactive_delay(self.assigned_users)
 
 
     """

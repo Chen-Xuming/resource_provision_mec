@@ -1,7 +1,7 @@
-from env_edge_node import EdgeNode
-from env_service import Service
-from env_user import User
-from env_environment import Environment
+from codes.min_cost.env.edge_node import EdgeNode
+from codes.min_cost.env.service import Service
+from codes.min_cost.env.user import User
+from codes.min_cost.env.environment import Environment
 
 
 from time import time
@@ -38,21 +38,22 @@ class BaseAlgorithm:
         0. 检查每个服务的排队时延是否跟num_ser对应的排队时延一致
         1. 检查是否所有用户都关联了EdgeNode，service的价格和服务率是否一致
         2. 检查是否所有时延满足约束
+        3. 检查服务器数量是否正确
     """
     def check_result(self):
         error_range = 1e-10
         for user in self.env.user_list:     # type: User
             delay = user.service_A.compute_queuing_delay(user.service_A.num_server)
             qd = user.service_A.queuing_delay
-            assert abs(delay - qd) < error_range, "Queuing delay is incorrect."
+            assert abs(delay - qd) < error_range, "user{}.service_A: Queuing delay is incorrect.".format(user.user_id)
 
             delay = user.service_B.compute_queuing_delay(user.service_B.num_server)
             qd = user.service_B.queuing_delay
-            assert abs(delay - qd) < error_range, "Queuing delay is incorrect."
+            assert abs(delay - qd) < error_range, "user{}.service_B: Queuing delay is incorrect.".format(user.user_id)
 
             delay = user.service_R.compute_queuing_delay(user.service_R.num_server)
             qd = user.service_R.queuing_delay
-            assert abs(delay - qd) < error_range, "Queuing delay is incorrect."
+            assert abs(delay - qd) < error_range, "user{}.service_R: Queuing delay is incorrect.".format(user.user_id)
 
         total_delay = 0
         for user_from in self.env.user_list:     # type: User
@@ -77,6 +78,17 @@ class BaseAlgorithm:
                 total_delay += delay
 
         self.avg_delay = total_delay / (self.env.num_user**2)
+
+
+        # ---------------- 检查服务器数量是否正确 -------------------------
+        for node in self.env.edge_node_list:        # type: EdgeNode
+            num_server = 0
+            extra_num_server = 0
+            for s in node.service_list.values():        # type: Service
+                num_server += s.num_server
+                extra_num_server += s.num_extra_server
+            assert num_server == node.num_server
+            assert extra_num_server == node.num_extra_server
 
 
 

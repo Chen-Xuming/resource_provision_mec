@@ -34,3 +34,8 @@ class EdgeNode:
             "B": 0,
             "R": 0
         }
+
+    def reset(self):
+        self.num_server = 0
+        self.num_extra_server = 0
+        self.service_list.clear()

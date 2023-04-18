@@ -1,4 +1,4 @@
-from alg_base import BaseAlgorithm
+from codes.min_cost.algorithms.base import BaseAlgorithm
 
 
 class ModifyAssignmentReallocation(BaseAlgorithm):

@@ -1,7 +1,12 @@
-s = 45
+import torch
+from torch_geometric.data import Data
+from torch_geometric.data.batch import Batch
+from torch_geometric.nn import GCNConv
+from torch_geometric.utils import unbatch
 
-ms = 1 / s * 1000
+from math import sqrt
 
-print("{}ms".format(ms))
+print(10 / (70**(1/2)))
+print(10 / (80**(1/2)))
 
-print(16.6+6.6+33.3)
+

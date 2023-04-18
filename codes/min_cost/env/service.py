@@ -25,6 +25,9 @@ class Service:
         self.price = 0.
         self.extra_price = 0.
 
+        if self.service_type == "A":
+            self.arrival_rate = 0
+
     # 更新服务器的数量，以及排队时延
     def update_num_server(self, n, extra_n, update_queuing_delay=True):
         # if self.service_type == 'A':
@@ -39,7 +42,6 @@ class Service:
     # def initialize_num_server(self):
     #     min_num_server = self.get_num_server_for_stability(self.service_rate)
     #     self.update_num_server(min_num_server)
-
     def get_num_server_for_stability(self, service_rate):
         num_server = 1
         while num_server * service_rate <= self.arrival_rate:

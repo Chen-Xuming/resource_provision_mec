@@ -1,7 +1,7 @@
 from numpy.random import default_rng, SeedSequence
-from env_edge_node import EdgeNode
-from env_user import User
-from env_service import Service
+from codes.min_cost.env.edge_node import EdgeNode
+from codes.min_cost.env.user import User
+from codes.min_cost.env.service import Service
 import numpy as np
 
 
@@ -140,24 +140,33 @@ class Environment:
         传输开销包含交互路径上的四段。
     """
     def compute_cost(self, assigned_user_list: list):
-        out_capacity = self.service_b.num_extra_server
-        in_capacity = self.service_b.num_server - out_capacity
-        allocation_cost = in_capacity * self.service_b.price
-        allocation_cost += out_capacity * self.service_b.extra_price
+        # out_capacity = self.service_b.num_extra_server
+        # in_capacity = self.service_b.num_server - out_capacity
+        # allocation_cost = in_capacity * self.service_b.price
+        # allocation_cost += out_capacity * self.service_b.extra_price
 
+        allocation_cost = 0
         transmission_cost = 0
 
         # 服务器分配开销
-        for user in assigned_user_list:     # type: User
-            out_capacity = user.service_A.num_extra_server
-            in_capacity = user.service_A.num_server - out_capacity
-            allocation_cost += in_capacity * user.service_A.price
-            allocation_cost += out_capacity * user.service_A.extra_price
+        for node in self.edge_node_list:        # type: EdgeNode
+            for service in node.service_list.values():      # type: Service
+                out_capacity = service.num_extra_server
+                in_capacity = service.num_server - out_capacity
+                allocation_cost += in_capacity * service.price
+                allocation_cost += out_capacity * service.extra_price
 
-            out_capacity = user.service_R.num_extra_server
-            in_capacity = user.service_R.num_server - out_capacity
-            allocation_cost += in_capacity * user.service_R.price
-            allocation_cost += out_capacity * user.service_R.extra_price
+
+        # for user in assigned_user_list:     # type: User
+        #     out_capacity = user.service_A.num_extra_server
+        #     in_capacity = user.service_A.num_server - out_capacity
+        #     allocation_cost += in_capacity * user.service_A.price
+        #     allocation_cost += out_capacity * user.service_A.extra_price
+        #
+        #     out_capacity = user.service_R.num_extra_server
+        #     in_capacity = user.service_R.num_server - out_capacity
+        #     allocation_cost += in_capacity * user.service_R.price
+        #     allocation_cost += out_capacity * user.service_R.extra_price
 
 
 
