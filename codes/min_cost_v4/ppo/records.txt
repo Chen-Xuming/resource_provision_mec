@@ -1,0 +1,432 @@
+C:\Users\doris\anaconda3\envs\py37\python.exe F:\resource_provision_mec\codes\min_cost_v4\ppo\test.py
+[Use Device]: NVIDIA Quadro RTX 8000
+user_seed = 207436079, user_num = 45
+[assign user 0] --> (8, 8, 20)
+[assign user 1] --> (24, 8, 21)
+[assign user 2] --> (8, 8, 17)
+[assign user 3] --> (2, 8, 21)
+[assign user 4] --> (8, 8, 20)
+[assign user 5] --> (18, 8, 21)
+[assign user 6] --> (18, 8, 21)
+[assign user 7] --> (2, 8, 11)
+[assign user 8] --> (2, 8, 21)
+[assign user 9] --> (24, 8, 12)
+[assign user 10] --> (2, 8, 21)
+[assign user 11] --> (21, 8, 9)
+[assign user 12] --> (2, 8, 21)
+[assign user 13] --> (8, 8, 9)
+[assign user 14] --> (8, 8, 14)
+[assign user 15] --> (8, 8, 14)
+[assign user 16] --> (2, 8, 21)
+[assign user 17] --> (21, 8, 12)
+[assign user 18] --> (18, 8, 21)
+[assign user 19] --> (2, 8, 17)
+[assign user 20] --> (2, 8, 21)
+[assign user 21] --> (18, 8, 21)
+[assign user 22] --> (18, 8, 21)
+[assign user 23] --> (2, 8, 4)
+[assign user 24] --> (2, 8, 21)
+[assign user 25] --> (8, 8, 17)
+[assign user 26] --> (2, 8, 21)
+[assign user 27] --> (2, 8, 21)
+[assign user 28] --> (18, 8, 21)
+[assign user 29] --> (2, 8, 12)
+[assign user 30] --> (2, 8, 12)
+[assign user 31] --> (2, 8, 21)
+[assign user 32] --> (8, 8, 21)
+[assign user 33] --> (24, 8, 21)
+[assign user 34] --> (8, 8, 9)
+[assign user 35] --> (8, 8, 21)
+[assign user 36] --> (2, 8, 0)
+[assign user 37] --> (5, 8, 20)
+[assign user 38] --> (18, 8, 21)
+[assign user 39] --> (2, 8, 21)
+[assign user 40] --> (21, 8, 2)
+[assign user 41] --> (2, 8, 24)
+[assign user 42] --> (8, 8, 12)
+[assign user 43] --> (18, 8, 14)
+[assign user 44] --> (18, 8, 9)
+final cost = 2836, assigned_user: 45/45
+
+进程已结束,退出代码0
+
+
+
+[Use Device]: NVIDIA Quadro RTX 8000
+user_seed = 232717244, user_num = 42
+[assign user 0] --> (8, 8, 21)
+[assign user 1] --> (5, 8, 21)
+[assign user 2] --> (2, 8, 21)
+[assign user 3] --> (2, 8, 21)
+[assign user 4] --> (18, 8, 21)
+[assign user 5] --> (18, 8, 12)
+[assign user 6] --> (18, 8, 20)
+[assign user 7] --> (18, 8, 21)
+[assign user 8] --> (2, 8, 17)
+[assign user 9] --> (18, 8, 21)
+[assign user 10] --> (2, 8, 21)
+[assign user 11] --> (2, 8, 21)
+[assign user 12] --> (2, 8, 21)
+[assign user 13] --> (8, 8, 4)
+[assign user 14] --> (18, 8, 12)
+[assign user 15] --> (8, 8, 2)
+[assign user 16] --> (5, 8, 21)
+[assign user 17] --> (8, 8, 21)
+[assign user 18] --> (24, 8, 21)
+[assign user 19] --> (18, 8, 9)
+[assign user 20] --> (2, 8, 12)
+[assign user 21] --> (2, 8, 14)
+[assign user 22] --> (8, 8, 21)
+[assign user 23] --> (2, 8, 21)
+[assign user 24] --> (2, 8, 14)
+[assign user 25] --> (18, 8, 16)
+[assign user 26] --> (2, 8, 21)
+[assign user 27] --> (17, 8, 21)
+[assign user 28] --> (8, 8, 21)
+[assign user 29] --> (2, 8, 14)
+[assign user 30] --> (18, 8, 20)
+[assign user 31] --> (18, 8, 17)
+[assign user 32] --> (18, 8, 10)
+[assign user 33] --> (18, 8, 20)
+[assign user 34] --> (2, 8, 24)
+[assign user 35] --> (2, 8, 20)
+[assign user 36] --> (18, 8, 21)
+[assign user 37] --> (18, 8, 21)
+[assign user 38] --> (18, 8, 17)
+[assign user 39] --> (2, 8, 21)
+[assign user 40] --> (2, 8, 17)
+[assign user 41] --> (8, 8, 24)
+final cost = 2089, assigned_user: 42/42
+
+进程已结束,退出代码0
+
+
+C:\Users\doris\anaconda3\envs\py37\python.exe F:\resource_provision_mec\codes\min_cost_v4\ppo\test.py
+[Use Device]: NVIDIA Quadro RTX 8000
+user_seed = 867001064, user_num = 55
+[assign user 0] --> (8, 8, 9)
+[assign user 1] --> (18, 8, 21)
+[assign user 2] --> (2, 8, 20)
+[assign user 3] --> (18, 8, 12)
+[assign user 4] --> (2, 8, 17)
+[assign user 5] --> (8, 8, 23)
+[assign user 6] --> (5, 8, 21)
+[assign user 7] --> (2, 8, 21)
+[assign user 8] --> (2, 8, 21)
+[assign user 9] --> (18, 8, 2)
+[assign user 10] --> (2, 8, 20)
+[assign user 11] --> (2, 8, 21)
+[assign user 12] --> (8, 8, 21)
+[assign user 13] --> (18, 8, 21)
+[assign user 14] --> (8, 8, 9)
+[assign user 15] --> (18, 8, 14)
+[assign user 16] --> (21, 8, 21)
+[assign user 17] --> (2, 8, 21)
+[assign user 18] --> (18, 8, 7)
+[assign user 19] --> (8, 8, 14)
+[assign user 20] --> (18, 8, 10)
+[assign user 21] --> (2, 8, 21)
+[assign user 22] --> (18, 8, 2)
+[assign user 23] --> (8, 8, 17)
+[assign user 24] --> (2, 8, 10)
+[assign user 25] --> (18, 8, 2)
+[assign user 26] --> (8, 8, 2)
+[assign user 27] --> (8, 8, 20)
+[assign user 28] --> (18, 8, 10)
+[assign user 29] --> (2, 8, 11)
+[assign user 30] --> (18, 8, 21)
+[assign user 31] --> (2, 8, 21)
+[assign user 32] --> (2, 8, 14)
+[assign user 33] --> (13, 8, 14)
+[assign user 34] --> (8, 8, 21)
+[assign user 35] --> (8, 8, 21)
+[assign user 36] --> (18, 8, 21)
+[assign user 37] --> (18, 8, 4)
+[assign user 38] --> (8, 8, 14)
+[assign user 39] --> (2, 8, 21)
+[assign user 40] --> (2, 8, 21)
+[assign user 41] --> (8, 8, 21)
+[assign user 42] --> (18, 8, 21)
+[assign user 43] --> (5, 8, 14)
+[assign user 44] --> (2, 8, 7)
+[assign user 45] --> (2, 8, 14)
+[assign user 46] --> (18, 8, 21)
+[assign user 47] --> (8, 8, 7)
+[assign user 48] --> (8, 8, 4)
+[assign user 49] --> (24, 8, 10)
+[assign user 50] --> (18, 8, 21)
+[assign user 51] --> (21, 8, 20)
+[assign user 52] --> (18, 8, 17)
+[assign user 53] --> (8, 8, 21)
+[assign user 54] --> (18, 8, 21)
+final cost = 4034, assigned_user: 55/55
+
+进程已结束,退出代码0
+
+
+C:\Users\doris\anaconda3\envs\py37\python.exe F:\resource_provision_mec\codes\min_cost_v4\ppo\test.py
+[Use Device]: NVIDIA Quadro RTX 8000
+user_seed = 720025293, user_num = 60
+[assign user 0] --> (2, 8, 21)
+[assign user 1] --> (2, 8, 21)
+[assign user 2] --> (2, 8, 21)
+[assign user 3] --> (8, 8, 7)
+[assign user 4] --> (2, 8, 21)
+[assign user 5] --> (2, 8, 21)
+[assign user 6] --> (18, 8, 20)
+[assign user 7] --> (2, 8, 14)
+[assign user 8] --> (2, 8, 21)
+[assign user 9] --> (2, 8, 21)
+[assign user 10] --> (5, 8, 21)
+[assign user 11] --> (18, 8, 24)
+[assign user 12] --> (18, 8, 21)
+[assign user 13] --> (8, 8, 23)
+[assign user 14] --> (18, 8, 4)
+[assign user 15] --> (8, 8, 21)
+[assign user 16] --> (2, 8, 21)
+[assign user 17] --> (18, 8, 21)
+[assign user 18] --> (24, 8, 21)
+[assign user 19] --> (8, 8, 21)
+[assign user 20] --> (18, 8, 21)
+[assign user 21] --> (18, 8, 4)
+[assign user 22] --> (2, 8, 21)
+[assign user 23] --> (2, 8, 2)
+[assign user 24] --> (2, 8, 12)
+[assign user 25] --> (2, 8, 9)
+[assign user 26] --> (2, 8, 17)
+[assign user 27] --> (18, 8, 20)
+[assign user 28] --> (2, 8, 21)
+[assign user 29] --> (8, 8, 7)
+[assign user 30] --> (18, 8, 17)
+[assign user 31] --> (8, 8, 9)
+[assign user 32] --> (8, 8, 12)
+[assign user 33] --> (2, 8, 2)
+[assign user 34] --> (2, 8, 21)
+[assign user 35] --> (8, 8, 23)
+[assign user 36] --> (2, 8, 12)
+[assign user 37] --> (8, 8, 21)
+[assign user 38] --> (8, 8, 21)
+[assign user 39] --> (18, 8, 17)
+[assign user 40] --> (8, 8, 7)
+[assign user 41] --> (2, 8, 21)
+[assign user 42] --> (18, 8, 20)
+[assign user 43] --> (8, 8, 21)
+[assign user 44] --> (2, 8, 2)
+[assign user 45] --> (2, 8, 21)
+[assign user 46] --> (18, 8, 21)
+[assign user 47] --> (18, 8, 21)
+[assign user 48] --> (2, 8, 21)
+[assign user 49] --> (2, 8, 21)
+[assign user 50] --> (2, 8, 21)
+[assign user 51] --> (18, 8, 14)
+[assign user 52] --> (24, 8, 12)
+[assign user 53] --> (24, 8, 21)
+[assign user 54] --> (2, 8, 10)
+[assign user 55] --> (18, 8, 21)
+[assign user 56] --> (2, 8, 21)
+[assign user 57] --> (18, 8, 21)
+[assign user 58] --> (18, 8, 14)
+[assign user 59] --> (18, 8, 21)
+final cost = 4493, assigned_user: 60/60
+
+进程已结束,退出代码0
+
+C:\Users\doris\anaconda3\envs\py37\python.exe F:\resource_provision_mec\codes\min_cost_v4\ppo\test.py
+[Use Device]: NVIDIA Quadro RTX 8000
+user_seed = 923350649, user_num = 70
+[assign user 0] --> (18, 8, 21)
+[assign user 1] --> (18, 8, 9)
+[assign user 2] --> (8, 8, 9)
+[assign user 3] --> (3, 8, 21)
+[assign user 4] --> (2, 8, 21)
+[assign user 5] --> (2, 8, 21)
+[assign user 6] --> (2, 8, 21)
+[assign user 7] --> (18, 8, 24)
+[assign user 8] --> (2, 8, 17)
+[assign user 9] --> (18, 8, 9)
+[assign user 10] --> (8, 8, 20)
+[assign user 11] --> (2, 8, 21)
+[assign user 12] --> (2, 8, 12)
+[assign user 13] --> (2, 8, 21)
+[assign user 14] --> (2, 8, 21)
+[assign user 15] --> (8, 8, 21)
+[assign user 16] --> (8, 8, 9)
+[assign user 17] --> (18, 8, 4)
+[assign user 18] --> (8, 8, 24)
+[assign user 19] --> (2, 8, 7)
+[assign user 20] --> (18, 8, 17)
+[assign user 21] --> (8, 8, 21)
+[assign user 22] --> (8, 8, 21)
+[assign user 23] --> (2, 8, 10)
+[assign user 24] --> (18, 8, 21)
+[assign user 25] --> (8, 8, 21)
+[assign user 26] --> (8, 8, 17)
+[assign user 27] --> (8, 8, 21)
+[assign user 28] --> (8, 8, 21)
+[assign user 29] --> (18, 8, 14)
+[assign user 30] --> (8, 8, 21)
+[assign user 31] --> (8, 8, 21)
+[assign user 32] --> (8, 8, 20)
+[assign user 33] --> (18, 8, 2)
+[assign user 34] --> (5, 8, 12)
+[assign user 35] --> (8, 8, 9)
+[assign user 36] --> (2, 8, 21)
+[assign user 37] --> (18, 8, 17)
+[assign user 38] --> (18, 8, 7)
+[assign user 39] --> (5, 8, 21)
+[assign user 40] --> (8, 8, 14)
+[assign user 41] --> (2, 8, 7)
+[assign user 42] --> (2, 8, 2)
+[assign user 43] --> (18, 8, 9)
+[assign user 44] --> (18, 8, 21)
+[assign user 45] --> (2, 8, 7)
+[assign user 46] --> (2, 8, 21)
+[assign user 47] --> (2, 8, 12)
+[assign user 48] --> (2, 8, 4)
+[assign user 49] --> (2, 8, 17)
+[assign user 50] --> (18, 8, 21)
+[assign user 51] --> (8, 8, 10)
+[assign user 52] --> (18, 8, 10)
+[assign user 53] --> (18, 8, 9)
+[assign user 54] --> (8, 8, 9)
+[assign user 55] --> (8, 8, 21)
+[assign user 56] --> (2, 8, 21)
+[assign user 57] --> (8, 8, 21)
+[assign user 58] --> (21, 8, 21)
+[assign user 59] --> (2, 8, 2)
+[assign user 60] --> (2, 8, 9)
+[assign user 61] --> (18, 8, 17)
+[assign user 62] --> (2, 8, 21)
+[assign user 63] --> (2, 8, 21)
+[assign user 64] --> (18, 8, 12)
+[assign user 65] --> (2, 8, 24)
+[assign user 66] --> (18, 8, 21)
+[assign user 67] --> (18, 8, 21)
+[assign user 68] --> (13, 8, 10)
+[assign user 69] --> (18, 8, 10)
+final cost = 6131, assigned_user: 70/70
+
+进程已结束,退出代码0
+
+
+
+C:\Users\doris\anaconda3\envs\py37\python.exe F:\resource_provision_mec\codes\min_cost_v4\main.py
+---- user_seed = 695167016 ----
+test #1, entropy=888888
+[min_cost_random]:  [final_cost]: 4023,  [average_delay]: 0.09142936545253108,  [running_time]: 62.05153465270996
+[min_cost_nearest]:  [final_cost]: 4716,  [average_delay]: 0.08754340553456523,  [running_time]: 57.047367095947266
+service B: node_id=8, service_rate=197
+[assign] user:0 to (1, 8, 12), cur_cost = 59
+[assign] user:1 to (0, 8, 21), cur_cost = 97
+[assign] user:2 to (18, 8, 21), cur_cost = 135
+[assign] user:3 to (18, 8, 21), cur_cost = 173
+[assign] user:4 to (18, 8, 12), cur_cost = 211
+[assign] user:5 to (18, 8, 7), cur_cost = 258
+[assign] user:6 to (0, 8, 20), cur_cost = 300
+[assign] user:7 to (18, 8, 17), cur_cost = 346
+[assign] user:8 to (1, 8, 20), cur_cost = 389
+[assign] user:9 to (18, 8, 20), cur_cost = 431
+[assign] user:10 to (18, 8, 14), cur_cost = 478
+[assign] user:11 to (0, 8, 17), cur_cost = 524
+[assign] user:12 to (0, 8, 9), cur_cost = 570
+[assign] user:13 to (5, 8, 14), cur_cost = 618
+[assign] user:14 to (18, 8, 7), cur_cost = 670
+[assign] user:15 to (18, 8, 9), cur_cost = 716
+[assign] user:16 to (18, 8, 9), cur_cost = 762
+[assign] user:17 to (18, 8, 14), cur_cost = 814
+[assign] user:18 to (18, 8, 2), cur_cost = 870
+[assign] user:19 to (18, 8, 24), cur_cost = 924
+[assign] user:20 to (18, 8, 24), cur_cost = 978
+[assign] user:21 to (18, 8, 2), cur_cost = 1034
+[assign] user:22 to (18, 8, 2), cur_cost = 1090
+[assign] user:23 to (6, 8, 2), cur_cost = 1147
+[assign] user:24 to (18, 8, 10), cur_cost = 1212
+[assign] user:25 to (0, 8, 0), cur_cost = 1274
+[assign] user:26 to (18, 8, 4), cur_cost = 1338
+[assign] user:27 to (18, 8, 0), cur_cost = 1400
+[assign] user:28 to (18, 8, 10), cur_cost = 1465
+[assign] user:29 to (18, 8, 12), cur_cost = 1531
+[assign] user:30 to (0, 8, 23), cur_cost = 1596
+[assign] user:31 to (0, 8, 23), cur_cost = 1661
+[assign] user:32 to (18, 8, 20), cur_cost = 1727
+[assign] user:33 to (1, 8, 7), cur_cost = 1795
+[assign] user:34 to (1, 8, 8), cur_cost = 1863
+[assign] user:35 to (6, 8, 21), cur_cost = 1934
+[assign] user:36 to (1, 8, 23), cur_cost = 2000
+[assign] user:37 to (1, 8, 4), cur_cost = 2063
+[assign] user:38 to (5, 8, 22), cur_cost = 2131
+[assign] user:39 to (5, 8, 4), cur_cost = 2194
+[assign] user:40 to (6, 8, 11), cur_cost = 2269
+[assign] user:41 to (1, 8, 11), cur_cost = 2344
+[assign] user:42 to (5, 8, 23), cur_cost = 2417
+[assign] user:43 to (5, 8, 11), cur_cost = 2492
+[assign] user:44 to (9, 8, 12), cur_cost = 2567
+[assign] user:45 to (5, 8, 12), cur_cost = 2642
+[assign] user:46 to (1, 8, 12), cur_cost = 2717
+[assign] user:47 to (6, 8, 12), cur_cost = 2792
+[assign] user:48 to (1, 8, 12), cur_cost = 2867
+[assign] user:49 to (1, 8, 21), cur_cost = 2942
+[min_cost_greedy]:  [final_cost]: 2942,  [average_delay]: 0.09148023968261952,  [running_time]: 75610.57305335999
+cost = 2942
+running_time = 75610.57305335999
+
+进程已结束,退出代码0
+
+
+C:\Users\doris\anaconda3\envs\py37\python.exe F:\resource_provision_mec\codes\min_cost_v4\ppo\test.py
+[Use Device]: NVIDIA Quadro RTX 8000
+user_seed = 262588216, user_num = 50
+[assign user 0] --> (36, 25, 33)
+[assign user 1] --> (39, 25, 33)
+[assign user 2] --> (36, 25, 31)
+[assign user 3] --> (27, 25, 19)
+[assign user 4] --> (36, 25, 19)
+[assign user 5] --> (39, 25, 15)
+[assign user 6] --> (36, 25, 18)
+[assign user 7] --> (36, 25, 4)
+[assign user 8] --> (27, 25, 19)
+[assign user 9] --> (39, 25, 31)
+[assign user 10] --> (6, 25, 25)
+[assign user 11] --> (39, 25, 14)
+[assign user 12] --> (36, 25, 29)
+[assign user 13] --> (36, 25, 14)
+[assign user 14] --> (36, 25, 31)
+[assign user 15] --> (36, 25, 5)
+[assign user 16] --> (36, 25, 11)
+[assign user 17] --> (39, 25, 25)
+[assign user 18] --> (36, 25, 19)
+[assign user 19] --> (36, 25, 11)
+[assign user 20] --> (36, 25, 33)
+[assign user 21] --> (36, 25, 33)
+[assign user 22] --> (36, 25, 20)
+[assign user 23] --> (36, 25, 34)
+[assign user 24] --> (39, 25, 25)
+[assign user 25] --> (36, 25, 25)
+[assign user 26] --> (39, 25, 31)
+[assign user 27] --> (39, 25, 4)
+[assign user 28] --> (39, 25, 21)
+[assign user 29] --> (36, 25, 4)
+[assign user 30] --> (39, 25, 19)
+[assign user 31] --> (39, 25, 31)
+[assign user 32] --> (36, 25, 15)
+[assign user 33] --> (39, 25, 22)
+[assign user 34] --> (36, 25, 25)
+[assign user 35] --> (39, 25, 18)
+[assign user 36] --> (36, 25, 5)
+[assign user 37] --> (36, 25, 19)
+[assign user 38] --> (36, 25, 5)
+[assign user 39] --> (36, 25, 5)
+[assign user 40] --> (36, 25, 25)
+[assign user 41] --> (39, 25, 1)
+[assign user 42] --> (36, 25, 25)
+[assign user 43] --> (39, 25, 35)
+[assign user 44] --> (39, 25, 21)
+[assign user 45] --> (36, 25, 15)
+[assign user 46] --> (36, 25, 18)
+[assign user 47] --> (36, 25, 25)
+[assign user 48] --> (36, 25, 11)
+[assign user 49] --> (39, 25, 25)
+final cost = 2825, assigned_user: 50/50
+
+进程已结束,退出代码0
+

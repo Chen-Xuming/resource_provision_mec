@@ -8,7 +8,7 @@ class GreedyAssignmentAllocation(BaseAlgorithm):
 
         self.assigned_users = []    # 已经完成关联、服务器分配的用户
 
-        self.debug_flag = False  # True = On, False = Off
+        self.debug_flag = True  # True = On, False = Off
 
     def run(self):
         self.start_time = time()

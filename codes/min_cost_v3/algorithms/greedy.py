@@ -1,5 +1,5 @@
 import copy
-from codes.min_cost_unsharedA.algorithms.base import *
+from codes.min_cost_v3.algorithms.base import *
 
 class GreedyAssignmentAllocation(BaseAlgorithm):
     def __init__(self, env, *args, **kwargs):
@@ -8,7 +8,7 @@ class GreedyAssignmentAllocation(BaseAlgorithm):
 
         self.assigned_users = []    # 已经完成关联、服务器分配的用户
 
-        self.debug_flag = False  # True = On, False = Off
+        self.debug_flag = True  # True = On, False = Off
 
     def run(self):
         self.start_time = time()
@@ -78,19 +78,6 @@ class GreedyAssignmentAllocation(BaseAlgorithm):
                 # 首先要满足 Tx + Tp < T_limit，否则无论如何增加服务器，都无济于事
                 if not self.is_tx_tp_satisfied(user, node_a, node_r):
                     continue
-
-                # 如果node_a还没有服务A，则创建一个，并进行初始化；
-                # 如果已有，则进行更新
-                # if (None, "A") not in node_a.service_list:
-                #     service_A = Service("A", node_a.node_id, user_id=None)
-                #     # service_A.service_rate = node_a.service_rate[service_A.service_type]
-                #     service_A.arrival_rate = user.arrival_rate
-                #     user.service_A = service_A
-                #     # self.attach_user_to_serviceA(user=user, service_a=service_A, records=cur_operation_records)
-                #     self.assign_and_initialize(user.service_A, node_a, records=cur_operation_records, user=user)
-                # else:
-                #     service_A = node_a.service_list[(None, "A")]
-                #     self.attach_user_to_serviceA(user, service_A, records=cur_operation_records)
 
                 self.assign_and_initialize(user.service_A, node_a, records=cur_operation_records)
                 self.assign_and_initialize(user.service_R, node_r, records=cur_operation_records)
@@ -167,6 +154,7 @@ class GreedyAssignmentAllocation(BaseAlgorithm):
     """
         分配服务器以满足时延约束. 每次选择 reduction / price 最大的
     """
+    # FIXME: x.price 没有考虑 x.extra_price
     def allocate_for_delay_limitations(self, records: list, cur_user: User):
         user_from, user_to, max_delay = self.env.compute_max_interactive_delay_by_given_user(cur_user, self.assigned_users)
         while max_delay > self.env.delay_limit:

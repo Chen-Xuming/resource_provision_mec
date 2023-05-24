@@ -1,5 +1,5 @@
 import copy
-from codes.min_cost_unsharedA.algorithms.base import *
+from codes.min_cost_v4.algorithms.base import *
 
 class GreedyAssignmentAllocation(BaseAlgorithm):
     def __init__(self, env, *args, **kwargs):
@@ -8,7 +8,7 @@ class GreedyAssignmentAllocation(BaseAlgorithm):
 
         self.assigned_users = []    # 已经完成关联、服务器分配的用户
 
-        self.debug_flag = False  # True = On, False = Off
+        self.debug_flag = True  # True = On, False = Off
 
     def run(self):
         self.start_time = time()
@@ -51,6 +51,27 @@ class GreedyAssignmentAllocation(BaseAlgorithm):
         self.assign_and_initialize(service_b, target_node, records=None)
         self.DEBUG("service B: node_id={}, service_rate={}".format(service_b.node_id, service_b.service_rate))
 
+
+    """
+        选择到其它节点时延之和最小的节点，当作服务B的关联节点
+    """
+    # def initialize_service_B(self):
+    #     service_b = self.env.service_b
+    #     min_delay_sum = 1e15
+    #     target_node = None
+    #
+    #     for edge_node in self.env.edge_node_list:  # type: EdgeNode
+    #         delay_sum = 0
+    #         for i in range(self.env.num_edge_node):
+    #             delay_sum += self.env.tx_node_node[edge_node.node_id][i]
+    #         if delay_sum < min_delay_sum:
+    #             min_delay_sum = delay_sum
+    #             target_node = edge_node
+    #
+    #     self.assign_and_initialize(service_b, target_node, records=None)
+    #     self.DEBUG("service B: node_id={}, service_rate={}".format(service_b.node_id, service_b.service_rate))
+
+
     """
         对于每个用户，选择部署成本最小的方案。
         对于每个用户，尝试每种可行的组合 （node_a, node_r），挑选出cost最小的方案。
@@ -79,19 +100,6 @@ class GreedyAssignmentAllocation(BaseAlgorithm):
                 if not self.is_tx_tp_satisfied(user, node_a, node_r):
                     continue
 
-                # 如果node_a还没有服务A，则创建一个，并进行初始化；
-                # 如果已有，则进行更新
-                # if (None, "A") not in node_a.service_list:
-                #     service_A = Service("A", node_a.node_id, user_id=None)
-                #     # service_A.service_rate = node_a.service_rate[service_A.service_type]
-                #     service_A.arrival_rate = user.arrival_rate
-                #     user.service_A = service_A
-                #     # self.attach_user_to_serviceA(user=user, service_a=service_A, records=cur_operation_records)
-                #     self.assign_and_initialize(user.service_A, node_a, records=cur_operation_records, user=user)
-                # else:
-                #     service_A = node_a.service_list[(None, "A")]
-                #     self.attach_user_to_serviceA(user, service_A, records=cur_operation_records)
-
                 self.assign_and_initialize(user.service_A, node_a, records=cur_operation_records)
                 self.assign_and_initialize(user.service_R, node_r, records=cur_operation_records)
 
@@ -100,7 +108,7 @@ class GreedyAssignmentAllocation(BaseAlgorithm):
 
                 # 1. 计算cost，如果小于min_cost. 则记录 best_operations 为当前的操作
                 # 2. undo当前操作
-                cur_cost = self.env.compute_cost(assigned_user_list=self.assigned_users)
+                cur_cost = self.env.compute_cost()
                 if cur_cost < min_cost:
                     min_cost = cur_cost
                     best_operations = copy.copy(cur_operation_records)
@@ -167,6 +175,7 @@ class GreedyAssignmentAllocation(BaseAlgorithm):
     """
         分配服务器以满足时延约束. 每次选择 reduction / price 最大的
     """
+    # FIXME: x.price 没有考虑 x.extra_price
     def allocate_for_delay_limitations(self, records: list, cur_user: User):
         user_from, user_to, max_delay = self.env.compute_max_interactive_delay_by_given_user(cur_user, self.assigned_users)
         while max_delay > self.env.delay_limit:

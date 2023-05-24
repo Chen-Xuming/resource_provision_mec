@@ -3,17 +3,14 @@ import torch.optim as optim
 import torch.optim.lr_scheduler as lr_scheduler
 import torch.backends.cudnn as cudnn
 
-if torch.cuda.is_available():
-    print('Using GPU, %i devices.' % torch.cuda.device_count())
-print(torch.backends.cudnn.enabled)
-print(torch.cuda.get_device_name(0))
+probs = torch.tensor([
+    [[0.5, 0.2, 0.3]],
+    [[0.1, 0.4, 0.5]]
+], dtype=torch.float)
+print(probs, probs.shape)
+print(probs[0], probs[1])
+fp = torch.mm(probs[0].reshape(3, 1), probs[1].reshape(1, 3))
+print(fp, fp.shape)
 
-arr = [1, 2, 3]
-arr2 = arr
-
-print(arr2)
-
-arr2.append(4)
-
-print(arr)
-print(arr2)
+fp = fp.flatten()
+print(fp, fp.shape)

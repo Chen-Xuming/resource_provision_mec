@@ -1,7 +1,7 @@
 from numpy.random import default_rng, SeedSequence
-from codes.min_cost_unsharedA.env.edge_node import EdgeNode
-from codes.min_cost_unsharedA.env.user import User
-from codes.min_cost_unsharedA.env.service import Service
+from codes.min_cost_multiaction.env.edge_node import EdgeNode
+from codes.min_cost_multiaction.env.user import User
+from codes.min_cost_multiaction.env.service import Service
 import numpy as np
 
 
@@ -156,8 +156,8 @@ class Environment:
             for service in node.service_list.values():      # type: Service
                 out_capacity = service.num_extra_server
                 in_capacity = service.num_server - out_capacity
-                allocation_cost += in_capacity * node.price[service.service_type]
-                allocation_cost += out_capacity * node.extra_price[service.service_type]
+                allocation_cost += in_capacity * service.price
+                allocation_cost += out_capacity * service.extra_price
 
 
         # for user in assigned_user_list:     # type: User

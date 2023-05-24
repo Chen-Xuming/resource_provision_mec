@@ -5,41 +5,50 @@ from codes.min_cost_unsharedA.algorithms.nearest import NearestAssignmentAllocat
 from codes.min_cost_unsharedA.algorithms.greedy import GreedyAssignmentAllocation
 from codes.min_cost_unsharedA.env.environment import Environment
 
+from ppo.test import RL
 
-"""
-54171349637842144159007613790275699200
-AssertionError: Interactive delay of users (44, 12) is out of limitation.
-"""
+import simplejson as json
 
+result = {}
+
+environment_configuration["num_user"] = 75
 
 for i in range(10):
-    # seed = SeedSequence(4558246304207880488366931966567191030)
-    # print("entropy={}".format(seed.entropy))
+    cost = []
 
+    env_seed = 1136447707
     user_seed = i
     print("---- user_seed = {} ----".format(user_seed))
 
-    env_seed = SeedSequence(1136447707)
-    print("test #{}, entropy={}".format(i + 1, env_seed.entropy))
+    # RL
+    cost.append(int(RL(env_seed=env_seed, user_seed=user_seed)))
 
+    env_seed = SeedSequence(env_seed)
+
+    # random
     env = Environment(environment_configuration, env_seed)
     env.reset_parameters_about_users(user_seed=user_seed)
     random_alg = RandomAssignmentAllocation(env)
     random_alg.run()
+    cost.append(int(env.compute_cost(random_alg.assigned_users)))
 
+    # nearest
     env = Environment(environment_configuration, env_seed)
     env.reset_parameters_about_users(user_seed=user_seed)
     nearest_alg = NearestAssignmentAllocation(env)
     nearest_alg.run()
+    cost.append(int(env.compute_cost(random_alg.assigned_users)))
 
-    # env = Environment(environment_configuration, env_seed)
-    # env.reset_parameters_about_users(user_seed=user_seed)
-    # greedy_alg = GreedyAssignmentAllocation(env)
-    # greedy_alg.run()
+    # greedy
+    env = Environment(environment_configuration, env_seed)
+    env.reset_parameters_about_users(user_seed=user_seed)
+    greedy_alg = GreedyAssignmentAllocation(env)
+    greedy_alg.run()
+    cost.append(int(env.compute_cost(random_alg.assigned_users)))
 
+    result[user_seed] = cost
 
-
-    # algorithm = RandomAssignmentAllocation(env)
-    # algorithm.run()
-
-    print("")
+print(result)
+file = "./result/unshared_a_user{}.json".format(environment_configuration["num_user"])
+with open(file, "a") as fjson:
+    json.dump(result, fjson)
