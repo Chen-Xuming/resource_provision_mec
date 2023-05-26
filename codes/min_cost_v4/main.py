@@ -10,12 +10,12 @@ from codes.min_cost_v4.env.environment import Environment
 AssertionError: Interactive delay of users (44, 12) is out of limitation.
 """
 
-num_user = 50
+num_user = 41
 for i in range(1):
     # seed = SeedSequence(4558246304207880488366931966567191030)
     # print("entropy={}".format(seed.entropy))
 
-    user_seed = 262588216
+    user_seed = 477556922
     print("---- user_seed = {} ----".format(user_seed))
 
     env_seed = SeedSequence(888888)

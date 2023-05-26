@@ -8,12 +8,14 @@ class GreedyAssignmentAllocation(BaseAlgorithm):
 
         self.assigned_users = []    # 已经完成关联、服务器分配的用户
 
-        self.debug_flag = True  # True = On, False = Off
+        self.debug_flag = False  # True = On, False = Off
 
         # 初始化服务B位置的方法
         # min_sum_tx = 到其它节点的时延和最小
         # min_init_cost = 初始化满足稳态条件所需开销最小
         self.init_B_alg = "min_sum_tx"
+
+        self.solution = []  # 算法的解
 
     def run(self):
         self.start_time = time()
@@ -35,6 +37,8 @@ class GreedyAssignmentAllocation(BaseAlgorithm):
 
         return True
 
+    def get_solution(self):
+        return self.solution, self.final_cost, self.avg_delay, self.running_time
 
     def initialize_service_B(self):
         if self.init_B_alg == "min_sum_tx":
@@ -148,6 +152,9 @@ class GreedyAssignmentAllocation(BaseAlgorithm):
                                                                                 user.service_B.node_id,
                                                                                 user.service_R.node_id,
                                                                                 min_cost))
+
+            # 记录当前用户的解
+            self.solution.append((user.service_A.node_id, user.service_B.node_id, user.service_R.node_id))
 
         return True
 
